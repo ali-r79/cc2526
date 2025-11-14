@@ -19,9 +19,9 @@ PROGRAM verlet
   velocity_init = 0
   velocity_3d = velocity_init
 
-  DO k = 1, 10
+  DO k = 1, 600
     velocity_3d =  velocity_3d + taw / mass * force_3d
     print *, "velocity 3d in ", k, "step is: ", velocity_3d
   END DO
-
+  DEALLOCATE (position_3d, velocity_3d, force_3d)
 END PROGRAM verlet
