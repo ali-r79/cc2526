@@ -25,6 +25,7 @@ CONTAINS
 
 
   SUBROUTINE distance_1d_sub(position_3d, direction, r_1d)
+    IMPLICIT NONE
     REAL(wp), INTENT(IN) :: position_3d(:,:)
     INTEGER, INTENT(IN) :: direction
 
@@ -83,17 +84,18 @@ CONTAINS
 
   SUBROUTINE force_1d_sub(r_1d, r, lennard_prime_result, result)
 
-  IMPLICIT NONE
-  REAL(wp), INTENT(IN) :: r_1d(:), r(:), lennard_prime_result(:)
-  REAL(wp), INTENT(OUT) :: result(:)
+    IMPLICIT NONE
+    REAL(wp), INTENT(IN) :: r_1d(:), r(:), lennard_prime_result(:)
+    REAL(wp), INTENT(OUT) :: result(:)
 
-  result = -(r_1d / r) * lennard_prime_result
+    result = -(r_1d / r) * lennard_prime_result
 
   END SUBROUTINE force_1d_sub
 
 
   SUBROUTINE position_1d_sub(position_init_1d, taw, velocity_1d_result, &
                              m, force_1d_result_k, position_1d_result)
+    IMPLICIT NONE
     REAL(wp), INTENT(IN) :: position_init_1d(:), velocity_1d_result(:), &
                             m(:), force_1d_result_k(:)
     REAL(wp), INTENT(IN) :: taw
@@ -106,7 +108,9 @@ CONTAINS
   END SUBROUTINE position_1d_sub
 
 
-    SUBROUTINE velocity_1d_sub(velocity_init_1d, taw, m, force_1d_result_k, force_1d_result_kp1, velocity_1d_result)
+  SUBROUTINE velocity_1d_sub(velocity_init_1d, taw, m, force_1d_result_k, &
+                             force_1d_result_kp1, velocity_1d_result)
+    IMPLICIT NONE
     REAL(wp), INTENT(IN) :: velocity_init_1d(:), m(:), force_1d_result_k(:), &
                             force_1d_result_kp1(:)
     REAL(wp), INTENT(IN) :: taw
@@ -117,6 +121,46 @@ CONTAINS
                          force_1d_result_kp1) / m
 
   END SUBROUTINE velocity_1d_sub
+
+
+  SUBROUTINE kin_energy_sub(m, velocity_x, velocity_y, velocity_z, kin_energy_result)
+
+    IMPLICIT NONE
+    REAL(wp), INTENT(IN) :: m(:), velocity_x(:), velocity_y(:), velocity_z(:)
+    INTEGER :: i, n
+    REAL(wp), INTENT(OUT) :: kin_energy_result(:)
+
+    n = SIZE(m)
+    DO i = 1, n
+
+      kin_energy_result(i) = 0.5_wp * m(i) * (velocity_x(i)**2 + velocity_y(i)**2 + &
+                                              velocity_z(i)**2)
+
+    END DO
+
+
+  END SUBROUTINE kin_energy_sub
+
+
+  SUBROUTINE diff_pot_energy_sub(force_k_x, force_k_y, force_k_z, x_kp1, &
+                                 x_k, y_kp1, y_k, z_kp1, z_k, diff_pot_energy_result)
+
+    IMPLICIT NONE
+    REAL(wp), INTENT(IN) :: force_k_x(:), force_k_y(:), force_k_z(:), x_kp1(:), x_k(:), &
+                            y_kp1(:), y_k(:), z_kp1(:), z_k(:)
+    INTEGER :: i, n
+    REAL(wp), INTENT(OUT) :: diff_pot_energy_result(:)
+
+    n = SIZE(x_k)
+    DO i = 2, n
+
+      diff_pot_energy_result(i) = (force_k_x(i) * (x_kp1(i) - x_k(i))) + &
+                                  (force_k_y(i) * (y_kp1(i) - y_k(i))) + &
+                                  (force_k_z(i)) * (z_kp1(i) - z_k(i))
+
+    END DO
+
+  END SUBROUTINE diff_pot_energy_sub
 
 
 END MODULE lennard_jones
